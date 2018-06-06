@@ -1,38 +1,97 @@
 # Cipherpipe
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cipherpipe`. To experiment with that code, run `bin/console` for an interactive prompt.
+Cipherpipe transfers secrets from stores (such as Vault) onto your local machine, or into the `ENV` of a Ruby app. You can then make changes and upload these back into the store - all of which is done only when you have valid access.
 
-TODO: Delete this and the text above, and describe your gem
+## Why?
+
+App and infrastructure secrets - API keys and other sensitive information - should be managed very carefully. Reading and writing these secrets must happen, though: developers will add new values in, production servers will retrieve values, and potentially so will CI services.
+
+Cipherpipe makes the transferring of this data predictable and reliable. It doesn't take care of managing authentication - you'll need to do that yourself (for example, with Vault via the appropriate tokens) - but it provides an executable to send and retrieve secrets as determined by a configuration file that can be checked in to the appropriate version control repositories.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+To use Cipherpipe on your machine, you'll need to install the gem:
+
+    $ gem install cipherpipe
+
+There are additional gems you may need, depending on what formats and which secret storage services you're dealing with.
+
+    $ gem install vault # if you're interacting with Vault
+    $ gem install rhcl  # if you're storing data as HCL variables (e.g. Terraform)
+    $ gem install dotenv # if you're storing data as a bash env file.
+
+If you want to access secrets within your Rails/Ruby app, then add it to your Gemfile:
 
 ```ruby
 gem 'cipherpipe'
 ```
 
-And then execute:
+And add the following to an initializer to load the secrets:
 
-    $ bundle
+```ruby
+Cipherpipe::Commands::Load.call
+```
 
-Or install it yourself as:
+## Configuration
 
-    $ gem install cipherpipe
+Everything for Cipherpipe is managed in a YAML configuration file `.cipherpipe.yml` which you should place in the root of your project. You'll need to specify at least one source (and mark it as the primary). Having an output file/format is optional, but likely useful.
+
+When setting a Vault source, the destination is a key-value store (v2) and the `secret/` prefix is added automatically.
+
+Here's an example for a Rails application using `dotenv` (and `ENVIRONMENT` is automatically translated to the appropriate Rails environment, as based on the RAILS_ENV variable):
+
+```yml
+file: .env.ENVIRONMENT
+format: env
+sources:
+- type: vault
+  destination: apps/myapp/ENVIRONMENT
+  primary: true
+```
+
+Another example, for use with a Terraform project:
+
+```yml
+file: terraform.tfvars
+format: hcl
+sources:
+- type: vault
+  destination: infrastructure/myapp
+  primary: true
+```
+
+Or, for use with Packer:
+
+```yml
+file: variables.json
+format: json
+sources:
+- type: vault
+  destination: images/myserver
+  primary: true
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+Once you've got things configured, you can use the `cipherpipe` executable to download or upload configuration.
 
-## Development
+Downloading takes data from the primary secret storage service, and copies it into the specified file, in the specified format:
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+    $ cipherpipe download
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Uploading will take the data from the configured file and send it to all of the configured secret sources.
+
+    $ cipherpipe upload
+
+Make sure that the configured secrets file is _not_ stored in version control. The `.cipherpipe.yml` file, however, should definitely be stored.
+
+## Dependencies
+
+If you're using Vault (which is likely, given it's currently the only supported secret storage service), you'll need to make sure it's using the V2 kv secrets engine.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/pat/cipherpipe. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at [https://github.com/limbrapp/cipherpipe](https://github.com/limbrapp/cipherpipe). This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 
