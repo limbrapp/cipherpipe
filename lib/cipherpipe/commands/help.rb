@@ -1,5 +1,5 @@
 class Cipherpipe::Commands::Help
-  def self.call
+  def self.call(configuration = nil)
     puts <<~TXT
       cipherpipe
 

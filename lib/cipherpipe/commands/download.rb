@@ -1,6 +1,10 @@
 class Cipherpipe::Commands::Download
-  def self.call
-    new.call
+  def self.call(configuration = nil)
+    new(configuration).call
+  end
+
+  def initialize(configuration)
+    @configuration = configuration
   end
 
   def call
