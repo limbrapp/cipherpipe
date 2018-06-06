@@ -25,6 +25,10 @@ class Cipherpipe::Configuration
 
   attr_reader :filename
 
+  def environment
+    ENV["CIPHERPIPE_ENV"] || ENV["RAILS_ENV"] || "development"
+  end
+
   def formatter
     case format
     when "json"
@@ -39,13 +43,17 @@ class Cipherpipe::Configuration
   end
 
   def parse!
-    @external_sources = yaml["sources"].collect { |source|
-      Cipherpipe::ExternalSource.new(
-        source["type"], source["destination"], source["primary"]
-      )
-    }
+    @external_sources = yaml["sources"].collect { |source| parse_source source }
     @format           = yaml["format"]
-    @file             = yaml["file"]
+    @file             = yaml["file"].gsub("ENVIRONMENT", environment)
+  end
+
+  def parse_source(hash)
+    Cipherpipe::ExternalSource.new(
+      source["type"],
+      source["destination"].gsub("ENVIRONMENT", environment),
+      source["primary"]
+    )
   end
 
   def yaml
