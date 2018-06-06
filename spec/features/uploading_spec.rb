@@ -1,3 +1,4 @@
+require "spec_helper"
 require "tempfile"
 
 RSpec.describe "Uploading secrets" do
