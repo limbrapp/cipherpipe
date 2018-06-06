@@ -50,9 +50,9 @@ class Cipherpipe::Configuration
 
   def parse_source(hash)
     Cipherpipe::ExternalSource.new(
-      source["type"],
-      source["destination"].gsub("ENVIRONMENT", environment),
-      source["primary"]
+      hash["type"],
+      hash["destination"].gsub("ENVIRONMENT", environment),
+      hash["primary"]
     )
   end
 
