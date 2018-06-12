@@ -32,6 +32,8 @@ And add the following to an initializer to load the secrets:
 Cipherpipe::Commands::Load.call
 ```
 
+If you're using Vault's EC2 authentication and have specified an `ec2_role` value for the primary source (as noted in the configuration example below), then loading the secrets will automatically authenticate against Vault using the EC2 instance's PKCS7-signed identity.
+
 ## Configuration
 
 Everything for Cipherpipe is managed in a YAML configuration file `.cipherpipe.yml` which you should place in the root of your project. You'll need to specify at least one source (and mark it as the primary). Having an output file/format is optional, but likely useful.
@@ -47,6 +49,18 @@ sources:
 - type: vault
   destination: apps/myapp/ENVIRONMENT
   primary: true
+```
+
+If you're running this on EC2 servers that are set up to authenticate with Vault via a specific role, you can provide that with the `ec2_role` setting and it'll automatically be used:
+
+```yml
+file: .env.ENVIRONMENT
+format: env
+sources:
+- type: vault
+  destination: apps/myapp/ENVIRONMENT
+  primary: true
+  ec2_role: servers
 ```
 
 Another example, for use with a Terraform project:
@@ -84,6 +98,10 @@ Uploading will take the data from the configured file and send it to all of the 
     $ cipherpipe upload
 
 Make sure that the configured secrets file is _not_ stored in version control. The `.cipherpipe.yml` file, however, should definitely be stored.
+
+If you're using Vault's EC2 authentication and have specified an `ec2_role` value for the primary source, you can automatically save a token for your system user (in `~/.vault-token`) with the `ec2` command:
+
+    $ cipherpipe ec2
 
 ## Dependencies
 
