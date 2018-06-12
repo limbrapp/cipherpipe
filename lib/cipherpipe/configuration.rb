@@ -52,7 +52,8 @@ class Cipherpipe::Configuration
     Cipherpipe::ExternalSource.new(
       hash["type"],
       hash["destination"].gsub("ENVIRONMENT", environment),
-      hash["primary"]
+      hash["primary"],
+      hash["ec2_role"]
     )
   end
 

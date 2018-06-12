@@ -1,12 +1,13 @@
 class Cipherpipe::ExternalSource
   UnknownProviderError = Class.new Cipherpipe::Error
 
-  attr_reader :type, :destination, :primary
+  attr_reader :type, :destination, :primary, :ec2_role
 
-  def initialize(type, destination, primary = false)
+  def initialize(type, destination, primary = false, ec2_role = nil)
     @type        = type
     @destination = destination
     @primary     = primary
+    @ec2_role    = ec2_role
   end
 
   def download
