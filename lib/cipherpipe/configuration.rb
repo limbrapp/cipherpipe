@@ -49,11 +49,14 @@ class Cipherpipe::Configuration
   end
 
   def parse_source(hash)
+    role = hash["ec2_role"]
+    role.gsub!("ENVIRONMENT", environment) unless role.nil?
+
     Cipherpipe::ExternalSource.new(
       hash["type"],
       hash["destination"].gsub("ENVIRONMENT", environment),
       hash["primary"],
-      hash["ec2_role"]
+      role
     )
   end
 
