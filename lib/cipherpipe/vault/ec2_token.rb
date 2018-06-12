@@ -29,7 +29,7 @@ class Cipherpipe::Vault::EC2Token
   def signature
     http = Net::HTTP.new URL.host, URL.port
     http.open_timeout = 1 # second
-    http.request_get(URL.path).body
+    http.request_get(URL.path).body.gsub("\n", "")
   rescue Net::OpenTimeout => error
     raise ConnectionError, "Unable to read the local EC2 information endpoint"
   end
