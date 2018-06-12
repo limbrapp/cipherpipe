@@ -21,7 +21,9 @@ class Cipherpipe::Vault::EC2Token
   def call
     response = ::Vault.auth.aws_ec2 external_source.ec2_role, signature, nonce
 
-    File.write NONCE_FILE, response.auth.metadata[:nonce]
+    if response.auth.metadata[:nonce]
+      File.write NONCE_FILE, response.auth.metadata[:nonce]
+    end
 
     response.auth.client_token
   end
