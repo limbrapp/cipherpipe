@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name          = "cipherpipe"
-  spec.version       = "0.2.0"
+  spec.version       = "0.2.1"
   spec.authors       = ["Pat Allan"]
   spec.email         = ["pat@freelancing-gods.com"]
 
