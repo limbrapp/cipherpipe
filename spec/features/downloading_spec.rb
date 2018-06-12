@@ -59,6 +59,9 @@ RSpec.describe "Downloading secrets" do
           destination: testing-backup
       YAML
       configuration_file.flush
+
+      allow(File).to receive(:exist?).and_return(false)
+      allow(File).to receive(:write).and_return(nil)
     end
 
     after :each do
@@ -79,13 +82,22 @@ RSpec.describe "Downloading secrets" do
     end
 
     it "uses the EC2 token" do
+      response = {
+        :auth => {
+          :client_token => "authenticated",
+          :metadata     => {
+            :nonce => "foo"
+          }
+        }
+      }
+
       stub_request(
         :get, "http://169.254.169.254/latest/dynamic/instance-identity/pkcs7"
       ).to_return(:body => "my-signature")
 
       stub_request(:post, "https://vault.test/v1/auth/aws-ec2/login").
         to_return(
-          :body    => JSON.dump(:auth => {:client_token => "authenticated"}),
+          :body    => JSON.dump(response),
           :headers => {"Content-Type" => "application/json"}
         )
 
