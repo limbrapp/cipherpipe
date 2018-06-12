@@ -5,7 +5,7 @@ class Cipherpipe::Formatters::Env
   end
 
   def self.write(input)
-    input.each { |key, value|
+    input.collect { |key, value|
       "#{key}=\"#{value}\""
     }.join("\n")
   end
