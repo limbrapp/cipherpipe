@@ -1,5 +1,6 @@
 require "uri"
 require "net/http"
+require "vault"
 
 class Cipherpipe::Vault::EC2Token
   ConnectionError = Class.new Cipherpipe::Error

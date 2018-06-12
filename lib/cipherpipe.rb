@@ -5,6 +5,7 @@ module Cipherpipe
 end
 
 require_relative "cipherpipe/commands/download"
+require_relative "cipherpipe/commands/ec2"
 require_relative "cipherpipe/commands/help"
 require_relative "cipherpipe/commands/load"
 require_relative "cipherpipe/commands/upload"

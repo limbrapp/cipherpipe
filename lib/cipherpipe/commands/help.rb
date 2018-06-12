@@ -12,6 +12,9 @@ class Cipherpipe::Commands::Help
 
         cipherpipe download # loads the secrets from the primary source
         cipherpipe upload   # uploads secrets to all sources
+        cipherpipe ec2      # authenticate your user using Vault's EC2 approach.
+                            # This command will overwrite your ~/.vault-token
+                            # file.
 
       TXT
   end
