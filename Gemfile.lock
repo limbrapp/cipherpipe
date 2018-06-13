@@ -29,6 +29,7 @@ GEM
       rspec-support (~> 3.7.0)
     rspec-support (3.7.1)
     safe_yaml (1.0.4)
+    shell_mock (0.3.3)
     vault (0.11.0)
       aws-sigv4
     webmock (3.4.2)
@@ -44,6 +45,7 @@ DEPENDENCIES
   cipherpipe!
   rake (~> 12.0)
   rspec (~> 3.7)
+  shell_mock (~> 0.3.3)
   vault (~> 0.11)
   webmock (~> 3.4)
 

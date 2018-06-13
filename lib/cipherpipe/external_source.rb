@@ -1,13 +1,14 @@
 class Cipherpipe::ExternalSource
   UnknownProviderError = Class.new Cipherpipe::Error
 
-  attr_reader :type, :destination, :primary, :ec2_role
+  attr_reader :type, :destination, :primary, :ec2_role, :options
 
-  def initialize(type, destination, primary = false, ec2_role = nil)
-    @type        = type
-    @destination = destination
-    @primary     = primary
-    @ec2_role    = ec2_role
+  def initialize(options = {})
+    @type        = options.delete "type"
+    @destination = options.delete "destination"
+    @primary     = options.delete "primary"
+    @ec2_role    = options.delete "ec2_role"
+    @options     = options
   end
 
   def download
@@ -37,6 +38,9 @@ class Cipherpipe::ExternalSource
     when "vault"
       require_relative "vault"
       Cipherpipe::Vault
+    when "1password"
+      require_relative "one_password"
+      Cipherpipe::OnePassword
     else
       raise UnknownProviderError, "unknown provider #{type}"
     end

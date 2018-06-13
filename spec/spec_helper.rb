@@ -1,10 +1,12 @@
 require "cipherpipe"
 require "webmock/rspec"
+require "shell_mock/rspec"
 
 ENV["VAULT_ADDR"]  = "https://vault.test"
 ENV["VAULT_TOKEN"] = "test"
 
 WebMock.disable_net_connect!
+ShellMock.enable
 
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
@@ -29,4 +31,6 @@ RSpec.configure do |config|
 
   # Seed global randomization in this process using the `--seed` CLI option.
   Kernel.srand config.seed
+
+  config.before(:each) { ShellMock::StubRegistry.clear }
 end
