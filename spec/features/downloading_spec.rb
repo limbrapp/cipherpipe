@@ -127,12 +127,17 @@ RSpec.describe "Downloading secrets from 1Password" do
   end
 
   let!(:primary_command) do
-    ShellMock.stub_command("op get item \"testing\" --vault \"Development\"").
-      and_return JSON.dump("details" => {"notesPlain" => JSON.dump(variables)})
+    ShellMock.stub_command("op get document \"primaryUUID\" --vault \"Development\"").
+      and_return JSON.dump(variables)
   end
   let!(:secondary_command) do
-    ShellMock.stub_command("op get item \"testing\" --vault \"Backups\"").
-      and_return JSON.dump("details" => {"notesPlain" => nil})
+    ShellMock.stub_command("op get document \"primaryUUID\" --vault \"Backups\"")
+  end
+  let!(:list_primary_command) do
+    ShellMock.stub_command("op list documents --vault \"Development\"").
+      and_return JSON.dump([
+        {"overview" => {"title" => "testing"}, "uuid" => "primaryUUID"}
+      ])
   end
 
   before :each do

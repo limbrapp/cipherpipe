@@ -60,16 +60,30 @@ RSpec.describe "Uploading secrets to 1Password" do
     Cipherpipe::Configuration.new configuration_file.path
   end
   let(:document) { {"notesPlain" => JSON.dump(variables), "sections" => []} }
+  let(:stubbed_file) { double :path => "foo", :write => nil, :flush => nil }
 
   let!(:primary_command) do
-    ShellMock.stub_command("op create item \"Secure Note\" \"encodedNote\" --title=\"testing\" --vault=\"Development\"")
+    ShellMock.stub_command("op create document \"foo\" --title=\"testing\" --vault=\"Development\"")
   end
   let!(:secondary_command) do
-    ShellMock.stub_command("op create item \"Secure Note\" \"encodedNote\" --title=\"testing\" --vault=\"Backups\"")
+    ShellMock.stub_command("op create document \"foo\" --title=\"testing\" --vault=\"Backups\"")
   end
   let!(:encode_command) do
     ShellMock.stub_command("echo \"#{JSON.dump(document)}\" | op encode").
       and_return("encodedNote")
+  end
+  let!(:list_primary_command) do
+    ShellMock.stub_command("op list documents --vault \"Development\"").
+      and_return JSON.dump([
+        {"overview" => {"title" => "testing"}, "uuid" => "matchingUUID"}
+      ])
+  end
+  let!(:list_secondary_command) do
+    ShellMock.stub_command("op list documents --vault \"Backups\"").
+      and_return JSON.dump([])
+  end
+  let!(:delete_command) do
+    ShellMock.stub_command("op delete item \"matchingUUID\" --vault=\"Development\"")
   end
 
   before :each do
@@ -89,6 +103,8 @@ RSpec.describe "Uploading secrets to 1Password" do
 
     output_file.write JSON.dump(variables)
     output_file.flush
+
+    allow(Tempfile).to receive(:new).and_return stubbed_file
   end
 
   it "uploads to each source" do
@@ -96,5 +112,11 @@ RSpec.describe "Uploading secrets to 1Password" do
 
     expect(primary_command).to have_been_called.once
     expect(secondary_command).to have_been_called.once
+  end
+
+  it "deletes existing documents when updating" do
+    Cipherpipe::CLI.call ["upload"], configuration
+
+    expect(delete_command).to have_been_called.once
   end
 end
