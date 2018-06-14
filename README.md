@@ -1,6 +1,6 @@
 # Cipherpipe
 
-Cipherpipe transfers secrets from stores (such as Vault) onto your local machine, or into the `ENV` of a Ruby app. You can then make changes and upload these back into the store - all of which is done only when you have valid access.
+Cipherpipe transfers secrets from stores (such as Vault and 1Password) onto your local machine, or into the `ENV` of a Ruby app. You can then make changes and upload these back into the store - all of which is done only when you have valid access.
 
 ## Why?
 
@@ -34,11 +34,13 @@ Cipherpipe::Commands::Load.call
 
 If you're using Vault's EC2 authentication and have specified an `ec2_role` value for the primary source (as noted in the configuration example below), then loading the secrets will automatically authenticate against Vault using the EC2 instance's PKCS7-signed identity.
 
+If you're using 1Password, you'll want to have [their command-line tool](https://support.1password.com/command-line-getting-started/) installed (testing has been conducted with v0.4.1). Any time you use cipherpipe commands that interact with 1Password, you'll have to be authenticated first (`op signin team-subdomain.1password.com me@myemail.com A3-XXXXXX-XXXXXX-XXXXX-XXXXX-XXXXX-XXXXX`).
+
 ## Configuration
 
 Everything for Cipherpipe is managed in a YAML configuration file `.cipherpipe.yml` which you should place in the root of your project. You'll need to specify at least one source (and mark it as the primary). Having an output file/format is optional, but likely useful.
 
-When setting a Vault source, the destination is a key-value store (v2) and the `secret/` prefix is added automatically.
+When setting a Vault source, the destination is a key-value store (v2) and the `secret/` prefix is added automatically. When setting up 1Password, the destination is the name of the document, and you'll want to specify a vault as well.
 
 Here's an example for a Rails application using `dotenv` (and `ENVIRONMENT` is automatically translated to the appropriate Rails environment, as based on the RAILS_ENV variable):
 
@@ -49,6 +51,9 @@ sources:
 - type: vault
   destination: apps/myapp/ENVIRONMENT
   primary: true
+- type: 1password
+  destination: "Apps: myapp ENVIRONMENT"
+  vault: Developers
 ```
 
 If you're running this on EC2 servers that are set up to authenticate with Vault via a specific role, you can provide that with the `ec2_role` setting and it'll automatically be used:
@@ -85,6 +90,8 @@ sources:
   primary: true
 ```
 
+Note that you must have one primary source - the primary source is where data is downloaded from. Other sources are only for uploading (i.e. as a backup).
+
 ## Usage
 
 Once you've got things configured, you can use the `cipherpipe` executable to download or upload configuration.
@@ -105,7 +112,9 @@ If you're using Vault's EC2 authentication and have specified an `ec2_role` valu
 
 ## Dependencies
 
-If you're using Vault (which is likely, given it's currently the only supported secret storage service), you'll need to make sure it's using the V2 kv secrets engine.
+If you're using Vault, you'll need to make sure it's using the V2 kv secrets engine.
+
+If you're using 1Password, you'll need [their command-line tool](https://support.1password.com/command-line-getting-started/) installed (v0.4.1 or newer is recommended).
 
 ## Contributing
 
