@@ -60,17 +60,12 @@ RSpec.describe "Uploading secrets to 1Password" do
     Cipherpipe::Configuration.new configuration_file.path
   end
   let(:document) { {"notesPlain" => JSON.dump(variables), "sections" => []} }
-  let(:stubbed_file) { double :path => "foo", :write => nil, :flush => nil }
 
   let!(:primary_command) do
-    ShellMock.stub_command("op create document \"foo\" --title=\"testing\" --vault=\"Development\"")
+    ShellMock.stub_command("op create document \"mydir/cipherpipe.json\" --title=\"testing\" --vault=\"Development\"")
   end
   let!(:secondary_command) do
-    ShellMock.stub_command("op create document \"foo\" --title=\"testing\" --vault=\"Backups\"")
-  end
-  let!(:encode_command) do
-    ShellMock.stub_command("echo \"#{JSON.dump(document)}\" | op encode").
-      and_return("encodedNote")
+    ShellMock.stub_command("op create document \"mydir/cipherpipe.json\" --title=\"testing\" --vault=\"Backups\"")
   end
   let!(:list_primary_command) do
     ShellMock.stub_command("op list documents --vault \"Development\"").
@@ -104,7 +99,15 @@ RSpec.describe "Uploading secrets to 1Password" do
     output_file.write JSON.dump(variables)
     output_file.flush
 
-    allow(Tempfile).to receive(:new).and_return stubbed_file
+    allow(Dir).to receive(:mktmpdir).and_yield "mydir"
+    allow(File).to receive(:write).and_return nil
+  end
+
+  it "writes the file to the temporary location" do
+    expect(File).to receive(:write).
+      with("mydir/cipherpipe.json", JSON.dump(variables))
+
+    Cipherpipe::CLI.call ["upload"], configuration
   end
 
   it "uploads to each source" do

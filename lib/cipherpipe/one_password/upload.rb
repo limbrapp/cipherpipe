@@ -1,4 +1,4 @@
-require "tempfile"
+require "tmpdir"
 require "json"
 
 class Cipherpipe::OnePassword::Upload
@@ -18,10 +18,11 @@ class Cipherpipe::OnePassword::Upload
       `op delete item "#{document["uuid"]}" --vault="#{vault}"`
     end
 
-    file.write JSON.dump(variables)
-    file.flush
+    Dir.mktmpdir do |directory|
+      File.write "#{directory}/cipherpipe.json", JSON.dump(variables)
 
-    `op create document "#{file.path}" --title="#{external_source.destination}" --vault="#{vault}"`
+      `op create document "#{directory}/cipherpipe.json" --title="#{external_source.destination}" --vault="#{vault}"`
+    end
   end
 
   private
@@ -30,10 +31,6 @@ class Cipherpipe::OnePassword::Upload
 
   def documents
     JSON.load `op list documents --vault "#{vault}"`
-  end
-
-  def file
-    @file ||= Tempfile.new
   end
 
   def vault
