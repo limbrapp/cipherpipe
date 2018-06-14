@@ -126,6 +126,9 @@ RSpec.describe "Downloading secrets from 1Password" do
     Cipherpipe::Configuration.new configuration_file.path
   end
 
+  let!(:op_enabled_command) do
+    ShellMock.stub_command("which op").and_return("/test/op")
+  end
   let!(:primary_command) do
     ShellMock.stub_command("op get document \"primaryUUID\" --vault \"Development\"").
       and_return JSON.dump(variables)

@@ -61,6 +61,9 @@ RSpec.describe "Uploading secrets to 1Password" do
   end
   let(:document) { {"notesPlain" => JSON.dump(variables), "sections" => []} }
 
+  let!(:op_enabled_command) do
+    ShellMock.stub_command("which op").and_return("/test/op")
+  end
   let!(:primary_command) do
     ShellMock.stub_command("op create document \"mydir/cipherpipe.json\" --title=\"testing\" --vault=\"Development\"")
   end
