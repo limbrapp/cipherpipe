@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    cipherpipe (0.4.1)
+    cipherpipe (0.4.2)
 
 GEM
   remote: https://rubygems.org/
