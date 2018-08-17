@@ -1,5 +1,8 @@
 class Cipherpipe::Commands::EC2
-  TOKEN_FILE = File.expand_path("~/.vault-token")
+  TOKEN_FILE = ENV.fetch(
+    "CIPHERPIPE_TOKEN_FILE",
+    File.expand_path("~/.vault-token")
+  )
 
   def self.call(configuration = nil)
     new(configuration).call

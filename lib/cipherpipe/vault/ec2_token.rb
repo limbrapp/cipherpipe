@@ -8,7 +8,10 @@ class Cipherpipe::Vault::EC2Token
     "http://169.254.169.254/latest/dynamic/instance-identity/pkcs7"
   )
 
-  NONCE_FILE = File.expand_path "~/.cipherpipe-nonce"
+  NONCE_FILE = ENV.fetch(
+    "CIPHERPIPE_NONCE_FILE",
+    File.expand_path("~/.cipherpipe-nonce")
+  )
 
   def self.call(external_source)
     new(external_source).call
