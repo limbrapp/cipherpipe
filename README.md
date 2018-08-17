@@ -42,7 +42,7 @@ Everything for Cipherpipe is managed in a YAML configuration file `.cipherpipe.y
 
 When setting a Vault source, the destination is a key-value store (v2) and the `secret/` prefix is added automatically. When setting up 1Password, the destination is the name of the document, and you'll want to specify a vault as well.
 
-Here's an example for a Rails application using `dotenv` (and `ENVIRONMENT` is automatically translated to the appropriate Rails environment, as based on the RAILS_ENV variable):
+Here's an example for a Rails application using `dotenv` (and `ENVIRONMENT` is automatically translated to the appropriate Rails environment, as based on the CIPHERPIPE_ENV or RAILS_ENV variables):
 
 ```yml
 file: .env.ENVIRONMENT
