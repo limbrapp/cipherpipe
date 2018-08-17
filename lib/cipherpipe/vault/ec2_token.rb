@@ -38,7 +38,7 @@ class Cipherpipe::Vault::EC2Token
   def nonce
     return nil unless File.exist?(NONCE_FILE)
 
-    File.read NONCE_FILE
+    File.read(NONCE_FILE).strip
   end
 
   def signature
